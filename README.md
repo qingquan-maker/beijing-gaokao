@@ -350,6 +350,20 @@ git remote add origin https://github.com/<你的用户名>/<仓库名>.git
 git push -u origin main
 ```
 
+> **一键脚本**：`scripts/deploy_github.py` 把上面这些步骤 + 开启 Pages + 设置工作流权限 + 触发首次运行全部自动完成：
+>
+> ```powershell
+> $env:GH_TOKEN = "ghp_xxx"        # classic token，需勾选 repo + workflow
+> python scripts/deploy_github.py --repo-name beijing-gaokao
+> ```
+>
+> 它会打印最终网址。token 只从环境变量读取，不会写进任何文件。
+>
+> 该脚本用 **GitHub REST API**（blobs → tree → commit → ref）上传，而不是 `git push`。
+> 原因是开发环境里 git 的认证链路不可用（受限沙箱禁止 git 自带的 `sh.exe` 创建管道：
+> `couldn't create signal pipe, Win32 error 5`），而 Python 访问 `api.github.com` 正常。
+> 顺带一个好处：token 完全不会落到 `.git/config` 里。
+
 ### 2. 打开 Pages 并选择 GitHub Actions 作为源
 
 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**（不要选 "Deploy from a branch"，工作流用的是 `actions/deploy-pages`）。
