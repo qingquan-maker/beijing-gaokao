@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-19 21:39:24",
-  "data_version": "288df7eb6e1a",
+  "generated_at": "2026-09-19 14:12:26",
+  "data_version": "a1e0b88bcb54",
   "latest_year": 2026,
   "years": [
     2026,
@@ -31,8 +31,8 @@
   ],
   "counts": {
     "schools": 620,
-    "programs": 2818,
-    "admissions": 2818,
+    "programs": 2944,
+    "admissions": 2944,
     "with_scores": 19,
     "with_rank": 14
   },
