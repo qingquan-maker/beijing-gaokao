@@ -1,0 +1,15 @@
+{
+  "_comment": [
+    "【示例数据 / DEMO DATA —— 不是官方录取数据】",
+    "学校代码与名称取自考试院真实数据；分数为演示用示意值，score_source='demo'。"
+  ],
+  "school": {"school_code": "1023", "name": "清华大学", "province": "北京"},
+  "year": 2025,
+  "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+  "programs": [
+    {"batch": "本科普通批", "group_code": "01", "subject_req": "不限选考科目", "major_code": "01", "major_name": "文科试验班类(新雅书院)", "min_score": 691, "avg_score": 693.6, "max_score": 701, "plan_count": 6, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "02", "major_name": "理科试验班类(物理基础类)", "min_score": 693, "avg_score": 696.2, "max_score": 708, "plan_count": 46, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "03", "major_name": "计算机类", "min_score": 697, "avg_score": 699.8, "max_score": 712, "plan_count": 32, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "03", "subject_req": "物理和化学(均须选考)", "major_code": "04", "major_name": "临床医学类", "min_score": 694, "avg_score": 696.0, "max_score": 702, "plan_count": 20, "duration": "8", "tuition": "5000", "score_source": "demo"}
+  ]
+}

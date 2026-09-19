@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "【示例数据 / DEMO DATA —— 不是官方录取数据】",
+    "这个文件特意放在 2024 年，用来演示年份切换、跨年对比与位次换算。",
+    "分数为演示用示意值，score_source='demo'。"
+  ],
+  "school": {"school_code": "1049", "name": "北京工业大学", "province": "北京"},
+  "year": 2024,
+  "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+  "programs": [
+    {"batch": "本科普通批", "group_code": "01", "subject_req": "不限选考科目", "major_code": "01", "major_name": "经济学类", "min_score": 601, "avg_score": 605.4, "max_score": 614, "plan_count": 40, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "02", "major_name": "计算机科学与技术(实验班)", "min_score": 628, "avg_score": 632.1, "max_score": 642, "plan_count": 60, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "03", "major_name": "电子信息工程", "min_score": 615, "avg_score": 618.9, "max_score": 628, "plan_count": 80, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "03", "subject_req": "物理和化学(均须选考)", "major_code": "04", "major_name": "材料类", "min_score": 596, "avg_score": 599.8, "max_score": 608, "plan_count": 96, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "04", "subject_req": "不限选考科目", "major_code": "05", "major_name": "建筑学", "min_score": 607, "avg_score": 611.2, "max_score": 620, "plan_count": 45, "duration": "5", "tuition": "5500", "score_source": "demo"}
+  ]
+}

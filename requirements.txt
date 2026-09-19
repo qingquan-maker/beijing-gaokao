@@ -1,0 +1,37 @@
+# ---- 运行环境 ----
+# Python 3.10+
+
+# 采集层：Scrapling（轻量、自带反爬指纹伪装，比 Scrapy 省资源）
+#
+# 【实测依赖关系，务必注意】
+#   scrapling 本体（0.4.15）只装解析器依赖：lxml / cssselect / orjson / w3lib / tld
+#   连 `from scrapling.fetchers import Fetcher` 都做不到，会依次报缺：
+#       1) curl_cffi     —— Fetcher（HTTP 抓取引擎）
+#       2) playwright    —— scrapling.engines.toolbelt.convertor 在模块级 import
+#                           playwright._impl._errors，也就是说**即使只想做静态 HTTP
+#                           抓取，也必须装上 playwright 这个 Python 包**。
+#                           好消息：只需 `pip install playwright`，不必执行
+#                           `playwright install`（不下载浏览器内核）即可用 Fetcher。
+#
+# 因此下面这一行是本项目采集层的完整依赖。
+scrapling[fetchers]>=0.4.15
+playwright>=1.40.0
+
+# 说明：只有 StealthyFetcher / DynamicFetcher（JS 动态渲染 + 强反爬）才需要浏览器内核。
+# 本项目针对的是考试院的**静态表格页**，用 Fetcher 足够，无需下载内核。
+# 若某所高校招生网是 JS 动态渲染，再执行：
+#   playwright install chromium
+
+# 大模型信息抽取：DeepSeek 兼容 OpenAI 协议
+openai>=1.40.0
+
+# 配置读取
+python-dotenv>=1.0.0
+
+# ---------------------------------------------------------------------------
+# 兜底说明
+# 若运行环境装不上 Scrapling（受限网络、受限 CI），本项目仍可运行：
+#   * 抓取自动退回标准库 urllib（crawler/base.py 的 HAS_SCRAPLING 分支）
+#   * 解析自动退回 BeautifulSoup + lxml（crawler/selector.py）
+# 两条路径都有测试覆盖（tests/test_parse.py 在两种解析后端下均 12/12 通过）。
+# ---------------------------------------------------------------------------

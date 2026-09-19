@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "【示例数据 / DEMO DATA —— 不是官方录取数据】",
+    "用途：格式参考 + 让前端三级展开、筛选、位次换算等功能可以在没有联网采集的情况下被完整演示。",
+    "所有行的 score_source 均为 'demo'，前端会在页面顶部显示醒目提示，且可被 --demo 之外的流程完全忽略。",
+    "学校代码与名称取自考试院真实数据；分数为演示用示意值。",
+    "真实数据请通过以下方式获得：",
+    "  1) 考试院招生计划（可信、已有真实数据）→ crawler/bjeea_plan.py",
+    "  2) 各高校本科招生网 → data/seed/school_sources.csv + crawler/school_sites.py",
+    "  3) 公众号/新闻文章 → crawler/wechat_articles.py（DeepSeek Flash 抽取）",
+    "  4) 人工整理 → 按本文件格式放入 data/archive/*.json"
+  ],
+  "school": {"school_code": "1021", "name": "北京大学", "province": "北京"},
+  "year": 2025,
+  "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+  "programs": [
+    {"batch": "本科普通批", "group_code": "01", "subject_req": "不限选考科目", "major_code": "01", "major_name": "文科试验班类", "min_score": 688, "avg_score": 691.2, "max_score": 699, "plan_count": 12, "duration": "4", "tuition": "5300", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "01", "subject_req": "不限选考科目", "major_code": "02", "major_name": "工商管理类", "min_score": 686, "avg_score": 688.5, "max_score": 693, "plan_count": 8, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "03", "major_name": "理科试验班类", "min_score": 690, "avg_score": 693.8, "max_score": 704, "plan_count": 40, "duration": "4", "tuition": "5300", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "04", "major_name": "计算机类", "min_score": 692, "avg_score": 695.1, "max_score": 706, "plan_count": 26, "duration": "4", "tuition": "5300", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "03", "subject_req": "物理和化学(均须选考)", "major_code": "05", "major_name": "临床医学(八年制)", "min_score": 691, "avg_score": 693.4, "max_score": 700, "plan_count": 18, "duration": "8", "tuition": "6000", "score_source": "demo"}
+  ]
+}

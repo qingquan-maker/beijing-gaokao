@@ -1,0 +1,26 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 本地依赖兜底安装目录（pip install --target .deps）
+.deps/
+.piptmp/
+pip-wheel-metadata/
+
+# ---- 密钥 ----
+.env
+.env.local
+
+# ---- 原始 HTML 快照 ----
+# 内容指纹与增量状态都在 data/gaokao.db 里，快照本身可不入库，避免仓库膨胀。
+data/raw/
+
+# ---- 说明 ----
+# 注意：data/gaokao.db **故意不忽略**。
+# 它是「断点续爬 + SHA-256 增量去重」的状态载体，也是 GitHub Actions 的缓存：
+# 提交它，每次定时任务才能只抓变化的部分，而不是每天全量重抓。
+# 如果数据量变得很大，可以改为用 actions/cache 缓存该文件。
+!data/gaokao.db
