@@ -312,7 +312,8 @@ def main() -> int:
         "default_workflow_permissions": "write",
         "can_approve_pull_request_reviews": False,
     }, allow=(403, 404, 422))
-    if code == 200:
+    # 注意：这个接口成功时返回 204 No Content，不是 200
+    if code in (200, 204):
         print("  已设为 read-write（定时任务才能把数据提交回仓库）")
     else:
         print(f"  未能自动设置（HTTP {code}）。请手动到 Settings → Actions → "
