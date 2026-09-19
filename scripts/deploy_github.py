@@ -37,6 +37,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -158,11 +159,29 @@ def local_files() -> list[str]:
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 
-def upload_via_api(token: str, full: str, message: str) -> str:
-    """用 Git Data API 把本地已提交的文件写入仓库，返回新 commit 的 sha。"""
+def upload_via_api(token: str, full: str, message: str, branch: str = "main") -> str:
+    """用 Git Data API 把本地已提交的文件写入仓库，返回新 commit 的 sha。
+
+    注意：**全新空仓库不能直接用 Git Data API** —— POST /git/blobs 会返回
+    409 "Git Repository is empty."。所以先用 Contents API 写一个文件造出第一个
+    提交，再用 Git Data API 一次性提交全部文件（只需 1 个 commit，历史干净）。
+    """
     files = local_files()
     if not files:
         raise SystemExit("[失败] 本地没有已提交的文件（先 git add + git commit）")
+
+    code, ref = api("GET", f"/repos/{full}/git/ref/heads/{branch}", token, allow=(404, 409))
+    if code != 200:
+        seed = min(files, key=lambda p: (ROOT / p).stat().st_size)   # 挑最小的文件做种子
+        print(f"  仓库为空，先用 {seed} 建立初始提交")
+        api("PUT", f"/repos/{full}/contents/{urllib.parse.quote(seed, safe='')}", token, {
+            "message": "chore: 初始化仓库",
+            "content": base64.b64encode((ROOT / seed).read_bytes()).decode("ascii"),
+            "branch": branch,
+        }, allow=(409, 422))
+        code, ref = api("GET", f"/repos/{full}/git/ref/heads/{branch}", token, allow=(404, 409))
+        if code != 200:
+            raise SystemExit("[失败] 初始提交创建失败，无法继续上传")
 
     print(f"  待上传 {len(files)} 个文件")
     tree_entries = []
@@ -187,12 +206,7 @@ def upload_via_api(token: str, full: str, message: str) -> str:
     if not isinstance(tree, dict) or "sha" not in tree:
         raise SystemExit("[失败] 创建 tree 失败")
 
-    parents: list[str] = []
-    code, ref = api("GET", f"/repos/{full}/git/ref/heads/main", token, allow=(404, 409))
-    if code == 200 and isinstance(ref, dict):
-        parents = [ref["object"]["sha"]]
-        print("  目标分支已存在，将创建新提交（保留历史）")
-
+    parents = [ref["object"]["sha"]] if isinstance(ref, dict) else []
     _, commit = api("POST", f"/repos/{full}/git/commits", token, {
         "message": message,
         "tree": tree["sha"],
@@ -201,12 +215,8 @@ def upload_via_api(token: str, full: str, message: str) -> str:
     if not isinstance(commit, dict) or "sha" not in commit:
         raise SystemExit("[失败] 创建 commit 失败")
 
-    if parents:
-        api("PATCH", f"/repos/{full}/git/refs/heads/main", token,
-            {"sha": commit["sha"], "force": True})
-    else:
-        api("POST", f"/repos/{full}/git/refs", token,
-            {"ref": "refs/heads/main", "sha": commit["sha"]})
+    api("PATCH", f"/repos/{full}/git/refs/heads/{branch}", token,
+        {"sha": commit["sha"], "force": True})
     return commit["sha"]
 
 
@@ -282,14 +292,19 @@ def main() -> int:
     if args.private:
         print("  !! 免费账号的 GitHub Pages 只能从**公开**仓库发布，私有仓库可能没有网址")
 
+    # 以仓库实际的默认分支为准（新建仓库通常是 main，但不要硬编）
+    _, info = api("GET", f"/repos/{full}", token)
+    branch = (info or {}).get("default_branch") or "main"
+    print(f"  默认分支：{branch}")
+
     # ---- 3) 上传 ----
     print("\n== 3/6 上传文件 ==")
-    sha = upload_via_api(token, full, args.message)
+    sha = upload_via_api(token, full, args.message, branch)
     print(f"  完成，commit {sha[:10]}")
     # 顺便把 origin 配好，方便你以后在本地查看（不影响本次上传）
     run_git(["remote", "remove", "origin"], check=False)
     run_git(["remote", "add", "origin", f"https://github.com/{full}.git"], check=False)
-    run_git(["branch", "-M", "main"], check=False)
+    run_git(["branch", "-M", branch], check=False)
 
     # ---- 4) 允许工作流写仓库 ----
     print("\n== 4/6 开启工作流写权限 ==")
@@ -297,7 +312,8 @@ def main() -> int:
         "default_workflow_permissions": "write",
         "can_approve_pull_request_reviews": False,
     }, allow=(403, 404, 422))
-    if code == 200:
+    # 注意：这个接口成功时返回 204 No Content，不是 200
+    if code in (200, 204):
         print("  已设为 read-write（定时任务才能把数据提交回仓库）")
     else:
         print(f"  未能自动设置（HTTP {code}）。请手动到 Settings → Actions → "
@@ -326,7 +342,7 @@ def main() -> int:
         print("\n== 6/6 触发首次数据更新 ==")
         code, _ = api(
             "POST", f"/repos/{full}/actions/workflows/{WORKFLOW_FILE}/dispatches",
-            token, {"ref": "main"}, allow=(404, 422),
+            token, {"ref": branch}, allow=(404, 422),
         )
         if code in (204, 201):
             print("  已触发，等待运行结果…")
