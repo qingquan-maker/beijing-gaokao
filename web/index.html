@@ -3,81 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>北京高考志愿录取数据查询</title>
-<meta name="description" content="历年北京高考各高校各专业录取最低分/平均分/最高分、位次、招生计划与当年试卷难度评价查询。">
+<title>北京高考志愿数据 · 院校专业组投档线查询</title>
+<meta name="description" content="输入分数或位次，查询北京高考各院校专业组历年投档最低分、位次与招生计划，并给出冲/稳/保参考区间。数据来自北京教育考试院官方发布。">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<header class="bar">
-  <h1>北京高考志愿录取数据查询</h1>
-  <div class="meta" id="meta">加载中…</div>
+<header class="app-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">京</span>
+      <span class="brand-text">
+        北京高考志愿数据
+        <span class="brand-sub">院校专业组 · 历年投档线</span>
+      </span>
+    </div>
+    <div class="header-side">
+      <label class="year-picker">
+        <span>数据年份</span>
+        <select id="f-year" aria-label="数据年份"></select>
+      </label>
+      <div class="header-meta" id="meta"></div>
+    </div>
+  </div>
 </header>
 
-<!-- 筛选栏 -->
-<div class="filters" id="filters">
-  <label>年份
-    <select id="f-year"></select>
-  </label>
+<main class="wrap">
 
-  <label>学校
-    <input id="f-school" type="search" placeholder="输入校名/代码，如 北京大学" autocomplete="off">
-  </label>
+  <!-- ============================ 查询区 ============================ -->
+  <section class="query-panel" aria-label="查询条件">
+    <h1 class="query-title">用你的分数或位次，找到能报的院校专业组</h1>
+    <p class="query-lead">
+      北京实行「院校专业组」投档，每个专业组单独划线。填分数后，页面会按
+      <b class="k-chong">冲</b> / <b class="k-wen">稳</b> / <b class="k-bao">保</b>
+      三档给你排序。
+    </p>
 
-  <label>专业组
-    <select id="f-group"><option value="">全部</option></select>
-  </label>
+    <form class="query-grid" id="query-form" autocomplete="off">
+      <label class="field">
+        <span class="field-label">高考总分</span>
+        <input id="f-score" type="number" min="100" max="750" step="1"
+               inputmode="numeric" placeholder="如 620">
+      </label>
 
-  <label>选科要求
-    <select id="f-subject"><option value="">全部</option></select>
-  </label>
+      <label class="field">
+        <span class="field-label">或 全市位次</span>
+        <input id="f-rank" type="number" min="1" step="1"
+               inputmode="numeric" placeholder="如 5000">
+      </label>
 
-  <label>录取批次
-    <select id="f-batch"><option value="">全部</option></select>
-  </label>
+      <label class="field">
+        <span class="field-label">选科要求</span>
+        <select id="f-subject"></select>
+      </label>
 
-  <label class="chk">
-    <input id="f-scored" type="checkbox"> 只看有录取分数
-  </label>
+      <label class="field">
+        <span class="field-label">录取批次</span>
+        <select id="f-batch"></select>
+      </label>
 
-  <button id="f-reset" type="button">重置</button>
+      <label class="field field-wide">
+        <span class="field-label">院校 / 专业</span>
+        <input id="f-query" type="search" placeholder="如 北京邮电大学、计算机"
+               autocomplete="off">
+      </label>
 
-  <span class="hint" id="count"></span>
-</div>
+      <div class="field field-actions">
+        <button class="btn btn-primary" type="submit">查询</button>
+        <button class="btn" type="button" id="f-reset">重置</button>
+      </div>
+    </form>
 
-<!-- 当年试卷难度 -->
-<div class="difficulty" id="difficulty" hidden></div>
+    <p class="tier-legend" id="tier-legend"></p>
+  </section>
 
-<!-- 主表格 -->
-<div class="table-wrap">
-  <table id="grid">
-    <thead>
-      <tr>
-        <th class="c-year">年份</th>
-        <th class="c-school">学校</th>
-        <th class="c-group">专业组</th>
-        <th class="c-major">专业</th>
-        <th class="c-num">最低分</th>
-        <th class="c-num">平均分</th>
-        <th class="c-num">最高分</th>
-        <th class="c-rank">位次</th>
-        <th class="c-plan">计划数</th>
-        <th class="c-diff">难度</th>
-      </tr>
-    </thead>
-    <tbody id="grid-body"></tbody>
-  </table>
-  <div class="empty" id="empty" hidden>没有匹配的数据。试试放宽筛选条件。</div>
-</div>
+  <!-- ============================ 结果区 ============================ -->
+  <section class="results">
+    <div class="results-head">
+      <div class="results-count" id="count" aria-live="polite">加载中…</div>
+      <div class="results-tools">
+        <label class="tool">
+          <span>排序</span>
+          <select id="f-sort">
+            <option value="score_desc">投档分 高→低</option>
+            <option value="score_asc">投档分 低→高</option>
+            <option value="rank_asc">位次 优→劣</option>
+            <option value="plan_desc">计划数 多→少</option>
+            <option value="name">院校名称</option>
+          </select>
+        </label>
+        <label class="tool chk" id="only-open-wrap" hidden>
+          <input type="checkbox" id="f-only-open" checked>
+          <span>只看可报范围</span>
+        </label>
+      </div>
+    </div>
 
-<footer class="foot">
-  <div id="sources"></div>
-  <div class="note" id="rank-note"></div>
-  <div class="note">数据仅供参考，请以北京教育考试院与各高校官方发布为准。</div>
+    <div class="list" id="list"></div>
+    <button class="btn btn-more" id="more" type="button" hidden>显示更多</button>
+    <div class="state" id="empty" hidden></div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <div class="foot-sources" id="sources"></div>
+    <div class="foot-note" id="rank-note"></div>
+    <div class="foot-note">
+      投档线为「院校专业组」口径，不等于具体专业的录取分；数据仅供参考，
+      请以北京教育考试院与各高校官方发布为准。
+    </div>
+  </div>
 </footer>
 
-<!-- app.js：优先 fetch 按年分片；若通过 file:// 双击打开（fetch 会被浏览器拦截），
-     自动回落到 data/data.js 内联包。 -->
 <script src="assets/app.js"></script>
 </body>
 </html>

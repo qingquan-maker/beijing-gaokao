@@ -5,6 +5,7 @@
  *   - index.json 必备字段齐全
  *   - 每个年份分片的 columns 与 index.columns 一致，且每行长度与列数相等
  *   - app.js 建树依赖的字段（school_code / school_name / group_code / …）存在
+ *   - 专业组投档线（groups）结构正确、分数与位次合理
  *   - data.js 内联包内容与分片一致
  *   - score_rank 分片可解析
  *
@@ -102,6 +103,51 @@ for (const year of index.years) {
         assert(Number(v) >= 100 && Number(v) <= 750,
           `${col}=${v} 越界（应 100~750）`);
       }
+    }
+  });
+
+  // ---- 专业组投档线（前端的主视角，必须严格校验）----
+
+  check(`admissions-${year}.json 带专业组投档线结构`, () => {
+    assert(payload.groups && Array.isArray(payload.groups.columns)
+      && Array.isArray(payload.groups.rows), '缺 groups.columns / groups.rows');
+    for (const col of ['school_code', 'school_name', 'batch', 'group_code',
+                       'subject_req', 'min_score', 'rank_min', 'prev_min_score',
+                       'plan_count', 'major_count']) {
+      assert(payload.groups.columns.includes(col), `groups 缺列 ${col}`);
+    }
+  });
+
+  check(`admissions-${year}.json 专业组每行长度与列数相等`, () => {
+    const n = payload.groups.columns.length;
+    payload.groups.rows.forEach((row, i) => {
+      assert(row.length === n, `第 ${i} 组有 ${row.length} 列，应为 ${n}`);
+    });
+  });
+
+  check(`admissions-${year}.json 专业组投档分与位次合理`, () => {
+    const gi = Object.fromEntries(payload.groups.columns.map((c, i) => [c, i]));
+    let scored = 0;
+    for (const r of payload.groups.rows) {
+      assert(r[gi.school_code], '专业组缺 school_code');
+      assert(r[gi.group_code], '专业组缺 group_code');
+      const score = r[gi.min_score];
+      if (score !== null && score !== '') {
+        assert(Number(score) >= 100 && Number(score) <= 750,
+          `投档分越界：${score}`);
+        scored += 1;
+      }
+      const rank = r[gi.rank_min];
+      if (rank !== null && rank !== '') {
+        assert(Number(rank) >= 1, `位次非法：${rank}`);
+      }
+      const prev = r[gi.prev_min_score];
+      if (prev !== null && prev !== '') {
+        assert(Number(prev) >= 100 && Number(prev) <= 750, `去年投档分越界：${prev}`);
+      }
+    }
+    if (index.years[0] === Number(year)) {
+      assert(scored > 0, `${year} 年一个官方投档分都没有，数据管道可能断了`);
     }
   });
 }

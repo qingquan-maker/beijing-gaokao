@@ -93,6 +93,18 @@ COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
 
 _GROUP_RE = re.compile(r"^\{?\s*([0-9A-Za-z]{1,4})\s*\}?\s*(.*)$", re.S)
 
+#: 「录取概况」表的表头别名。这类表是院校/科类级的，和上面的专业级表分开解析。
+SUMMARY_ALIASES: dict[str, tuple[str, ...]] = {
+    "year": ("年份", "年度", "招生年份"),
+    "province": ("省市", "省份", "生源省份", "招生省份", "生源地"),
+    "subject_type": ("科类", "选考科目", "文理科"),
+    "batch_type": ("类型", "招生类型", "计划类型"),
+    "min_score": ("最低分", "录取最低分"),
+    "avg_score": ("平均分", "录取平均分"),
+    "max_score": ("最高分", "录取最高分"),
+    "control_line": ("控制线", "省控线", "批次线", "录取控制分数线"),
+}
+
 
 def _match_column(header: str) -> str | None:
     squeezed = re.sub(r"\s+", "", header)
@@ -101,6 +113,98 @@ def _match_column(header: str) -> str | None:
             if squeezed == alias or alias in squeezed:
                 return field
     return None
+
+
+def _match_summary_column(header: str) -> str | None:
+    squeezed = re.sub(r"\s+", "", header)
+    for field, aliases in SUMMARY_ALIASES.items():
+        for alias in aliases:
+            if squeezed == alias or alias in squeezed:
+                return field
+    return None
+
+
+def parse_summary_table(html: str) -> list[dict[str, Any]]:
+    """解析「录取概况」表（年份 / 省市 / 科类 / 类型 / 最低分 / 平均分 / 控制线）。
+
+    与专业级表格的区分条件：必须有最低分，且带控制线或省市 ——
+    专业级表格没有控制线，也不会按省市分行。
+    """
+    page = parse._select(html)  # noqa: SLF001
+    best: list[dict[str, Any]] = []
+
+    for table in page.css("table"):
+        trs = table.css("tr")
+        if len(trs) < 2:
+            continue
+        header_cells = [parse.clean_text(element_text(c)) for c in trs[0].css("td, th")]
+        if len(header_cells) < 3:
+            continue
+        mapping: dict[int, str] = {}
+        for idx, head in enumerate(header_cells):
+            field = _match_summary_column(head)
+            if field and field not in mapping.values():
+                mapping[idx] = field
+        fields = set(mapping.values())
+        if "min_score" not in fields:
+            continue
+        if not ({"control_line", "province"} & fields):
+            continue
+
+        rows: list[dict[str, Any]] = []
+        for tr in trs[1:]:
+            cells = [parse.clean_text(element_text(c)) for c in tr.css("td, th")]
+            if len(cells) < 2:
+                continue
+            row: dict[str, Any] = {}
+            for idx, field in mapping.items():
+                if idx < len(cells):
+                    row[field] = cells[idx]
+            if not row.get("min_score"):
+                continue
+            rows.append(row)
+        if len(rows) > len(best):
+            best = rows
+    return best
+
+
+def load_summary_rows(
+    conn: sqlite3.Connection,
+    school_code: str,
+    rows: Iterable[dict[str, Any]],
+    source_url: str,
+    default_year: int,
+) -> int:
+    """写入 school_summaries（院校级录取概况 + 批次控制线）。"""
+    payload: list[dict[str, Any]] = []
+    for raw in rows:
+        year = parse.to_int(raw.get("year")) or default_year
+        if not (2000 <= int(year) <= 2100):
+            year = default_year
+        min_score = parse.to_int(raw.get("min_score"))
+        if min_score is None or not (100 <= min_score <= 750):
+            continue
+        payload.append({
+            "year": int(year),
+            "school_code": school_code,
+            "province": parse.clean_text(raw.get("province") or ""),
+            "subject_type": parse.clean_text(raw.get("subject_type") or ""),
+            "batch_type": parse.clean_text(raw.get("batch_type") or ""),
+            "min_score": min_score,
+            "avg_score": parse.to_float(raw.get("avg_score")),
+            "max_score": parse.to_int(raw.get("max_score")),
+            "control_line": parse.to_int(raw.get("control_line")),
+            "source_url": source_url,
+            "source_kind": "school_site",
+        })
+    if not payload:
+        return 0
+    return upsert(
+        conn, "school_summaries", payload,
+        ["year", "school_code", "province", "subject_type", "batch_type"],
+        update_only=["min_score", "avg_score", "max_score", "control_line",
+                     "source_url", "source_kind"],
+    )
 
 
 def parse_generic_admission_table(html: str) -> list[dict[str, Any]]:
@@ -185,6 +289,7 @@ class SchoolSiteCrawler:
         self.store = ContentStore(conn)
         self.tasks = TaskQueue(conn)
         self._extractor = None
+        self._render_client = None
 
     @property
     def extractor(self):
@@ -193,6 +298,13 @@ class SchoolSiteCrawler:
 
             self._extractor = DeepSeekExtractor(self.conn)
         return self._extractor
+
+    @property
+    def render_client(self):
+        """渲染用客户端：录取概况页基本是 JS 单页应用，必须走真实浏览器。"""
+        if self._render_client is None:
+            self._render_client = HttpClient(render=True)
+        return self._render_client
 
     # ------------------------------------------------------------------
     def plan(self, sources: Iterable[SchoolSource] | None = None) -> list[SchoolSource]:
@@ -231,7 +343,8 @@ class SchoolSiteCrawler:
     def fetch_source(self, src: SchoolSource) -> dict[str, int]:
         """抓一个学校源并入库。返回统计。"""
         stat = {"rows": 0, "llm_calls": 0, "skipped": 0}
-        page = self.client.get(src.admissions_url)
+        client = self.render_client if src.strategy == "summary" else self.client
+        page = client.get(src.admissions_url)
         if not page.ok:
             raise RuntimeError(f"HTTP {page.status}")
 
@@ -242,6 +355,15 @@ class SchoolSiteCrawler:
 
         year = src.year_hint or parse.parse_title_year(page.html) or settings.LATEST_YEAR
         school_code = self.resolve_school_code(src.school_name, src.school_code)
+
+        if src.strategy == "summary":
+            if not school_code:
+                raise RuntimeError(f"库中找不到学校「{src.school_name}」")
+            rows_summary = parse_summary_table(page.html)
+            stat["rows"] = load_summary_rows(
+                self.conn, school_code, rows_summary, src.admissions_url, year
+            )
+            return stat
 
         if src.strategy == "llm":
             records = self.extractor.extract_admissions(_visible_text(page.html), year)

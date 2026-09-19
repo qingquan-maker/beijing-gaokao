@@ -121,7 +121,10 @@ def rank_for_score(conn: sqlite3.Connection, year: int, score: int | None) -> in
             """
             SELECT cumulative_count FROM score_rank
              WHERE year = ? AND score_low <= ? AND ? <= score_high
-             ORDER BY score_high DESC LIMIT 1
+             -- 同一张表里可能同时存在「精确到 1 分」的分段（来自 PDF）
+             -- 与「合并区间」分段（如 698-750，来自种子 CSV）。取最窄的一段，
+             -- 精确分段优先，缺失区间才落到合并分段。
+             ORDER BY (score_high - score_low) ASC, score_high DESC LIMIT 1
             """,
             (year, score, score),
         ).fetchone()

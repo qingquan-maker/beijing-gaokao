@@ -82,6 +82,53 @@ CREATE INDEX IF NOT EXISTS idx_adm_school_year ON admissions (school_code, year)
 CREATE INDEX IF NOT EXISTS idx_adm_group       ON admissions (year, school_code, group_code);
 CREATE INDEX IF NOT EXISTS idx_adm_min         ON admissions (year, min_score DESC);
 
+-- ------------------------------------------------------------------ 专业组投档线
+-- 考试院公布的「录取投档线」是**专业组级**的（含语数外+三科单科成绩），
+-- 不是专业级。硬塞进 admissions 的专业级自然键，会让同一份分数在组内每个
+-- 专业上重复一次，页面上看起来就像"每个专业都考了同一个分"。
+-- 因此单独建表，前端在「专业组」这一层展示它 —— 这也正是官方口径。
+CREATE TABLE IF NOT EXISTS group_admissions (
+    year         INTEGER NOT NULL,
+    school_code  TEXT    NOT NULL REFERENCES schools (school_code) ON DELETE CASCADE,
+    batch        TEXT    NOT NULL DEFAULT '',
+    group_code   TEXT    NOT NULL DEFAULT '',
+    subject_req  TEXT,                          -- 投档线文件里的选考要求（官方原文）
+    min_score    INTEGER,                       -- 投档最低分（总分）
+    rank_min     INTEGER,                       -- 由一分一段表换算的位次
+    sub_scores   TEXT,                          -- 语文,数学,外语,三科选考
+    note         TEXT,                          -- 备注（如同分排序成绩）
+    source_kind  TEXT,                          -- official_pdf | archive | demo
+    source_url   TEXT,
+    updated_at   TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    PRIMARY KEY (year, school_code, batch, group_code)
+);
+CREATE INDEX IF NOT EXISTS idx_group_adm_year  ON group_admissions (year, min_score DESC);
+CREATE INDEX IF NOT EXISTS idx_group_adm_score ON group_admissions (year, school_code, group_code);
+
+-- ------------------------------------------------------------------ 院校录取概况
+-- 高校招生网普遍只公布到「院校 / 科类 / 招生类型」这一层，并且**顺带给出当年
+-- 的批次控制线**（实测北航：2025 北京 综合改革 最低分 665 / 平均分 670.47 /
+-- 控制线 519）。这类数据既不是专业组级也不是专业级，塞进哪张表都会错位，
+-- 因此单独建表。
+--
+-- 注意：这是**院校级**最低分，不等于某个专业组的投档线，两者不可混用。
+CREATE TABLE IF NOT EXISTS school_summaries (
+    year         INTEGER NOT NULL,
+    school_code  TEXT    NOT NULL REFERENCES schools (school_code) ON DELETE CASCADE,
+    province     TEXT    NOT NULL DEFAULT '',   -- 生源省市，如「北京」
+    subject_type TEXT    NOT NULL DEFAULT '',   -- 科类，如「综合改革」
+    batch_type   TEXT    NOT NULL DEFAULT '',   -- 招生类型，如「统招（限选物理、化学）」
+    min_score    INTEGER,                       -- 院校录取最低分
+    avg_score    REAL,                          -- 院校录取平均分
+    max_score    INTEGER,
+    control_line INTEGER,                       -- 当年该科类批次控制线
+    source_url   TEXT,
+    source_kind  TEXT,                          -- school_site
+    updated_at   TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    PRIMARY KEY (year, school_code, province, subject_type, batch_type)
+);
+CREATE INDEX IF NOT EXISTS idx_school_sum_year ON school_summaries (year, school_code);
+
 -- ------------------------------------------------------------------ 一分一段表
 -- 北京公布的尾部区间会合并（如 "120-129"），故用 [score_low, score_high] 表示一段。
 -- cumulative_count 为该段末尾对应的累计人数，即位次。

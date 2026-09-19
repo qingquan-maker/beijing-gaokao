@@ -37,6 +37,19 @@ except Exception:  # pragma: no cover - 仅在未安装 Scrapling 的环境触�
     Fetcher = None  # type: ignore
     HAS_SCRAPLING = False
 
+#: 第二后端：curl_cffi。
+#: 很多高校招生网在 TLS 层就鉴别客户端 —— 实测普通 urllib 请求会拿到
+#: `SSL: UNEXPECTED_EOF_WHILE_READING`、HTTP 412 或 403；换成浏览器 TLS
+#: 指纹后同一批站点可正常返回。它是 Scrapling 装不上时的关键替代，
+#: 不是可有可无的优化。
+try:
+    from curl_cffi import requests as _curl_requests  # type: ignore
+
+    HAS_CURL_CFFI = True
+except Exception:  # pragma: no cover
+    _curl_requests = None  # type: ignore
+    HAS_CURL_CFFI = False
+
 
 # --------------------------------------------------------------------------- 内容指纹
 
@@ -177,6 +190,7 @@ class HttpClient:
         jitter: float | None = None,
         retries: int | None = None,
         timeout_ms: int | None = None,
+        render: bool = False,
     ) -> None:
         self.limiter = RateLimiter(
             settings.BASE_DELAY_SECONDS if delay is None else delay,
@@ -184,11 +198,29 @@ class HttpClient:
         )
         self.retries = settings.MAX_RETRIES if retries is None else retries
         self.timeout_ms = settings.REQUEST_TIMEOUT_MS if timeout_ms is None else timeout_ms
-        self.backend = "scrapling" if HAS_SCRAPLING else "urllib"
+        self.backend = ("scrapling" if HAS_SCRAPLING
+                        else "curl_cffi" if HAS_CURL_CFFI
+                        else "urllib")
+        #: render=True 时改用真实浏览器渲染（JS 单页应用必须走这条路）
+        self.render = render
+        self._curl_session = None
+
+    # -- 内部：curl_cffi 会话（复用连接，只建一次） -----------------------
+    def _session(self):
+        if self._curl_session is None and HAS_CURL_CFFI:
+            self._curl_session = _curl_requests.Session(impersonate="chrome")  # type: ignore[union-attr]
+        return self._curl_session
 
     # -- 内部：单次请求 ---------------------------------------------------
     def _once(self, url: str, method: str, data: Mapping[str, Any] | None) -> FetchedPage:
         self.limiter.wait(url)
+        if self.render:
+            from crawler import browser
+
+            if browser.available():
+                html = browser.render(url)
+                body = html.encode("utf-8", "ignore")
+                return FetchedPage(url, 200, html, body, {"content-type": "text/html"})
         if HAS_SCRAPLING:
             kwargs: dict[str, Any] = {
                 "timeout": self.timeout_ms,
@@ -205,6 +237,27 @@ class HttpClient:
             status = int(getattr(page, "status", 0) or 0)
             html = getattr(page, "html_content", None) or decode_html(body, headers)
             return FetchedPage(url, status, html, body, headers)
+
+        # ---- curl_cffi（浏览器 TLS 指纹）----
+        if HAS_CURL_CFFI:
+            headers = {
+                "User-Agent": settings.USER_AGENT,
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            }
+            try:
+                resp = self._session().request(
+                    method.upper(), url,
+                    data=dict(data or {}) if data else None,
+                    headers=headers,
+                    timeout=self.timeout_ms / 1000,
+                    allow_redirects=True,
+                )
+                body = resp.content or b""
+                hdrs = dict(resp.headers)
+                return FetchedPage(url, int(resp.status_code), decode_html(body, hdrs), body, hdrs)
+            except Exception as exc:  # 交给外层重试逻辑
+                raise FetchError(url, f"curl_cffi: {type(exc).__name__}: {exc}") from exc
 
         # ---- urllib 兜底 ----
         payload = urllib.parse.urlencode(dict(data or {})).encode() if data else None

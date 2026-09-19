@@ -119,6 +119,14 @@ jobs:
           echo "运行参数: $ARGS"
           python scripts/run_all.py $ARGS
 
+      # 投档线 / 一分一段表以 PDF 附件发布，走单独的采集器。
+      # 这一步决定"页面上的分数"能不能更新 —— 它失败时前面的计划数据仍然可用。
+      - name: 采集投档线 / 一分一段 PDF
+        env:
+          GAOKAO_DELAY: "1.0"
+        run: |
+          python scripts/ingest_pdf.py --years 2026,2025 --max-list-pages 8
+
       # 前端数据契约测试：确保导出的 JSON 满足页面假设（列定义、行长度、位次单调）
       - name: 前端数据契约测试
         run: node tests/data_contract.test.mjs

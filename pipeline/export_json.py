@@ -54,9 +54,70 @@ SOURCES = [
         "name": "北京教育考试院 · 综合查询系统（招生计划）",
         "url": "http://query.bjeea.cn/queryService/rest/plan/115",
     },
-    {"name": "北京教育考试院 · 高考高招通知公告（一分一段表）", "url": settings.BJEAA_GKGZ_INDEX},
+    {
+        "name": "北京教育考试院 · 高考高招通知公告（投档线 / 一分一段表 PDF）",
+        "url": settings.BJEAA_TZGG_INDEX,
+    },
     {"name": "阳光高考平台", "url": f"{settings.CHSI_BASE}/"},
 ]
+
+#: 专业组投档线的列定义（前端「专业组」这一层直接读它）
+GROUP_COLUMNS: tuple[str, ...] = (
+    "school_code",
+    "school_name",
+    "batch",
+    "group_code",
+    "subject_req",
+    "min_score",
+    "rank_min",
+    "prev_min_score",
+    "plan_count",
+    "major_count",
+    "sub_scores",
+    "note",
+    "source_url",
+)
+
+GROUP_SQL = """
+SELECT g.year, g.school_code, s.name AS school_name, g.batch, g.group_code,
+       g.subject_req, g.min_score, g.rank_min, g.sub_scores, g.note, g.source_url,
+       prev.min_score AS prev_min_score,
+       COALESCE(a.major_count, 0) AS major_count,
+       COALESCE(a.plan_count, 0)  AS plan_count
+  FROM group_admissions g
+  JOIN schools s ON s.school_code = g.school_code
+  LEFT JOIN (
+        SELECT p.year, p.school_code, p.batch, p.group_code,
+               COUNT(*) AS major_count, SUM(COALESCE(a.plan_count, 0)) AS plan_count
+          FROM programs p
+          LEFT JOIN admissions a
+                 ON a.year = p.year AND a.school_code = p.school_code
+                AND a.batch = p.batch AND a.group_code = p.group_code
+                AND a.major_code = p.major_code AND a.major_name = p.major_name
+         GROUP BY p.year, p.school_code, p.batch, p.group_code
+       ) a ON a.year = g.year AND a.school_code = g.school_code
+          AND a.batch = g.batch AND a.group_code = g.group_code
+  LEFT JOIN group_admissions prev
+         ON prev.year = g.year - 1 AND prev.school_code = g.school_code
+        AND prev.group_code = g.group_code
+ WHERE g.year = ?
+ ORDER BY g.school_code, g.batch, g.group_code
+"""
+
+#: 院校录取概况（院校/科类级，含批次控制线）
+SUMMARY_COLUMNS: tuple[str, ...] = (
+    "school_code", "school_name", "province", "subject_type", "batch_type",
+    "min_score", "avg_score", "max_score", "control_line", "source_url",
+)
+
+SUMMARY_SQL = """
+SELECT y.school_code, s.name AS school_name, y.province, y.subject_type, y.batch_type,
+       y.min_score, y.avg_score, y.max_score, y.control_line, y.source_url
+  FROM school_summaries y
+  JOIN schools s ON s.school_code = y.school_code
+ WHERE y.year = ?
+ ORDER BY y.school_code, y.province, y.batch_type
+"""
 
 
 def _json_dump(path: Path, payload: Any, indent: int | None = None) -> int:
@@ -108,9 +169,16 @@ def export(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     difficulty = _difficulty_map(conn)
+    #: 年份要取两张表的并集：2025 目前只有专业组投档线（官方 PDF），
+    #: 没有专业目录；只看 admissions 会把这个年份整个漏掉。
     years = [
         int(r["year"])
-        for r in conn.execute("SELECT DISTINCT year FROM admissions ORDER BY year DESC")
+        for r in conn.execute(
+            """SELECT DISTINCT year FROM admissions
+               UNION
+               SELECT DISTINCT year FROM group_admissions
+               ORDER BY year DESC"""
+        )
     ]
 
     # 难度按年份标注到每一行，前端无需再查一次
@@ -158,10 +226,39 @@ def export(
     bundle: dict[str, Any] = {"columns": list(ADMISSION_COLUMNS), "years": {}}
 
     for year in years:
+        group_rows = [
+            [
+                r["school_code"],
+                r["school_name"],
+                r["batch"] or "",
+                r["group_code"] or "",
+                r["subject_req"] or "",
+                r["min_score"],
+                r["rank_min"],
+                r["prev_min_score"],
+                r["plan_count"],
+                r["major_count"],
+                r["sub_scores"] or "",
+                r["note"] or "",
+                r["source_url"] or "",
+            ]
+            for r in conn.execute(GROUP_SQL, (year,)).fetchall()
+        ]
+        summary_rows = [
+            [
+                r["school_code"], r["school_name"], r["province"] or "",
+                r["subject_type"] or "", r["batch_type"] or "",
+                r["min_score"], r["avg_score"], r["max_score"], r["control_line"],
+                r["source_url"] or "",
+            ]
+            for r in conn.execute(SUMMARY_SQL, (year,)).fetchall()
+        ]
         payload = {
             "year": year,
             "columns": list(ADMISSION_COLUMNS),
             "rows": by_year.get(year, []),
+            "groups": {"columns": list(GROUP_COLUMNS), "rows": group_rows},
+            "summaries": {"columns": list(SUMMARY_COLUMNS), "rows": summary_rows},
             "difficulty": difficulty.get(year, []),
         }
         written[f"admissions-{year}.json"] = _json_dump(out_dir / f"admissions-{year}.json", payload)
@@ -192,6 +289,15 @@ def export(
         ).fetchone()["n"],
         "with_rank": conn.execute(
             "SELECT COUNT(*) AS n FROM admissions WHERE rank_min IS NOT NULL"
+        ).fetchone()["n"],
+        "group_scores": conn.execute(
+            "SELECT COUNT(*) AS n FROM group_admissions WHERE min_score IS NOT NULL"
+        ).fetchone()["n"],
+        "group_ranks": conn.execute(
+            "SELECT COUNT(*) AS n FROM group_admissions WHERE rank_min IS NOT NULL"
+        ).fetchone()["n"],
+        "summaries": conn.execute(
+            "SELECT COUNT(*) AS n FROM school_summaries"
         ).fetchone()["n"],
     }
 

@@ -7,6 +7,10 @@ venv/
 
 # 本地依赖兜底安装目录（pip install --target .deps）
 .deps/
+# 与当前 Python 运行时（3.12）匹配的依赖目录；.deps 是按 3.13 编译的，两者不可混用
+.deps312/
+# Playwright 浏览器内核目录（实测国内网络下载会失败；改为驱动系统已装的 Edge/Chrome）
+.pw-browsers/
 .piptmp/
 pip-wheel-metadata/
 
