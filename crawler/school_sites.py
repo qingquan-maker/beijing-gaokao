@@ -344,7 +344,15 @@ class SchoolSiteCrawler:
         """抓一个学校源并入库。返回统计。"""
         stat = {"rows": 0, "llm_calls": 0, "skipped": 0}
         client = self.render_client if src.strategy == "summary" else self.client
-        page = client.get(src.admissions_url)
+        try:
+            page = client.get(src.admissions_url)
+        except Exception as exc:
+            # 渲染不可用（例如 CI 里没装浏览器内核）时退回静态抓取：
+            # JS 页面会拿到空壳、解析出 0 行，这比整个任务判失败更诚实。
+            if src.strategy != "summary":
+                raise
+            print(f"[school] 渲染失败，退回静态抓取 {src.admissions_url}: {str(exc)[:120]}")
+            page = self.client.get(src.admissions_url)
         if not page.ok:
             raise RuntimeError(f"HTTP {page.status}")
 

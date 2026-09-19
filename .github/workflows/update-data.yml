@@ -88,6 +88,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 高校招生网的「录取概况」页是 JS 单页应用，必须用真实浏览器渲染；
+      # 本机开发时驱动的是系统自带的 Edge/Chrome，CI 里则要装一份 Chromium。
+      - name: 安装 Playwright 浏览器
+        run: python -m playwright install --with-deps chromium
+
       # 页面结构漂移的早期预警：解析器是基于真实页面快照写的离线回归，
       # 这一步失败说明考试院页面结构变了，后面的采集必然解析不到数据。
       - name: 解析器回归测试（页面结构哨兵）
