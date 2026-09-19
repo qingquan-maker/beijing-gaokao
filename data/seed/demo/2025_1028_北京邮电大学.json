@@ -1,0 +1,16 @@
+{
+  "_comment": [
+    "【示例数据 / DEMO DATA —— 不是官方录取数据】",
+    "学校代码与名称取自考试院真实数据；分数为演示用示意值，score_source='demo'。"
+  ],
+  "school": {"school_code": "1028", "name": "北京邮电大学", "province": "北京"},
+  "year": 2025,
+  "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+  "programs": [
+    {"batch": "本科普通批", "group_code": "01", "subject_req": "不限选考科目", "major_code": "01", "major_name": "工商管理类", "min_score": 638, "avg_score": 641.0, "max_score": 648, "plan_count": 14, "duration": "4", "tuition": "5000", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "02", "major_name": "通信工程(大类)", "min_score": 652, "avg_score": 656.5, "max_score": 668, "plan_count": 68, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "02", "subject_req": "物理(必须选考)", "major_code": "03", "major_name": "计算机类", "min_score": 655, "avg_score": 659.3, "max_score": 671, "plan_count": 72, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科普通批", "group_code": "03", "subject_req": "物理和化学(均须选考)", "major_code": "04", "major_name": "电子信息类", "min_score": 648, "avg_score": 651.7, "max_score": 662, "plan_count": 55, "duration": "4", "tuition": "5500", "score_source": "demo"},
+    {"batch": "本科提前批普通A段", "group_code": "04", "subject_req": "不限选考科目", "major_code": "05", "major_name": "英语", "min_score": 631, "avg_score": 634.2, "max_score": 641, "plan_count": 6, "duration": "4", "tuition": "5000", "score_source": "demo"}
+  ]
+}

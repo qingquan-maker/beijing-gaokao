@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>北京高考志愿录取数据查询</title>
+<meta name="description" content="历年北京高考各高校各专业录取最低分/平均分/最高分、位次、招生计划与当年试卷难度评价查询。">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <h1>北京高考志愿录取数据查询</h1>
+  <div class="meta" id="meta">加载中…</div>
+</header>
+
+<!-- 筛选栏 -->
+<div class="filters" id="filters">
+  <label>年份
+    <select id="f-year"></select>
+  </label>
+
+  <label>学校
+    <input id="f-school" type="search" placeholder="输入校名/代码，如 北京大学" autocomplete="off">
+  </label>
+
+  <label>专业组
+    <select id="f-group"><option value="">全部</option></select>
+  </label>
+
+  <label>选科要求
+    <select id="f-subject"><option value="">全部</option></select>
+  </label>
+
+  <label>录取批次
+    <select id="f-batch"><option value="">全部</option></select>
+  </label>
+
+  <label class="chk">
+    <input id="f-scored" type="checkbox"> 只看有录取分数
+  </label>
+
+  <button id="f-reset" type="button">重置</button>
+
+  <span class="hint" id="count"></span>
+</div>
+
+<!-- 当年试卷难度 -->
+<div class="difficulty" id="difficulty" hidden></div>
+
+<!-- 主表格 -->
+<div class="table-wrap">
+  <table id="grid">
+    <thead>
+      <tr>
+        <th class="c-year">年份</th>
+        <th class="c-school">学校</th>
+        <th class="c-group">专业组</th>
+        <th class="c-major">专业</th>
+        <th class="c-num">最低分</th>
+        <th class="c-num">平均分</th>
+        <th class="c-num">最高分</th>
+        <th class="c-rank">位次</th>
+        <th class="c-plan">计划数</th>
+        <th class="c-diff">难度</th>
+      </tr>
+    </thead>
+    <tbody id="grid-body"></tbody>
+  </table>
+  <div class="empty" id="empty" hidden>没有匹配的数据。试试放宽筛选条件。</div>
+</div>
+
+<footer class="foot">
+  <div id="sources"></div>
+  <div class="note" id="rank-note"></div>
+  <div class="note">数据仅供参考，请以北京教育考试院与各高校官方发布为准。</div>
+</footer>
+
+<!-- app.js：优先 fetch 按年分片；若通过 file:// 双击打开（fetch 会被浏览器拦截），
+     自动回落到 data/data.js 内联包。 -->
+<script src="assets/app.js"></script>
+</body>
+</html>

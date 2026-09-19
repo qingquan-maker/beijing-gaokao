@@ -1,0 +1,21 @@
+# 统一换行符为 LF。
+# 采集与部署都跑在 Linux（GitHub Actions ubuntu-latest）上，
+# 而本项目是在 Windows 上开发的；若提交进仓库的是 CRLF，
+# YAML / Python / shell 脚本都可能因此出错（例如 shebang 后多一个 \r）。
+* text=auto eol=lf
+
+# 明确标注二进制文件，避免被当作文本做换行转换而损坏
+*.db      binary
+*.sqlite  binary
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.webp    binary
+*.gif     binary
+*.ico     binary
+*.woff    binary
+*.woff2   binary
+
+# Windows 批处理必须是 CRLF
+*.bat     text eol=crlf
+*.cmd     text eol=crlf

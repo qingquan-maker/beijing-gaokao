@@ -1,0 +1,1626 @@
+﻿
+
+
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+
+<title>北京教育考试院-综合查询系统</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<link href="/static/css/shdkt.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/custom.css?version=1" rel="stylesheet" type="text/css"/>
+<script>
+	if(self!=top){top.location="http://www.bjeea.cn"}
+	var Config = {
+		path : ''
+	};
+</script>
+<script src="/static/widget/json/json2.js"></script>
+<script src="/static/widget/jquery/jquery-3.6.0.min.js"></script>
+<script src="/static/widget/jquery/custom/jquery.extend.js"></script>
+<script src="/static/widget/jquery/form/jquery.form.js"></script>
+<script src="/static/widget/jquery/Validform/Validform_v5.3.2.js"></script>
+<script src="/static/widget/jquery/Validform/Validform_Datatype.js"></script>
+<script src="/static/widget/artTemplate/template-web.js"></script>
+<script src="/static/js/func.js" type="text/javascript"></script>  
+<script  src="/dwr/engine.js" type="text/javascript"></script>
+<script  src="/static/js/util.js" type="text/javascript"></script>
+<script  src="/dwr/interface/GetGaoZhaoPCDMByExamId.js" type="text/javascript"></script>
+<input name="enrollBatch_value" id="enrollBatch_value" type="hidden" value="本科普通批"/>
+<input name="enrollBatch_value2" id="enrollBatch_value2" type="hidden" value=""/>
+<script type="text/javascript">
+function changeExamTime1()
+	{
+		var examId = document.getElementById("examId").value;
+		var enrollBatch_value = document.getElementById("enrollBatch_value").value;
+		if (examId != "")
+		{
+         GetGaoZhaoPCDMByExamId.queryGaoZhaoJHPCByExamId(examId, function(obj){
+              if (typeof window['DWRUtil'] == 'undefined') 
+                      window.DWRUtil = dwr.util;
+                if(dwr.util!=null){
+				dwr.util.removeAllOptions("enrollBatch");
+				dwr.util.addOptions("enrollBatch", {"":"全部"});
+				dwr.util.addOptions("enrollBatch", obj, 'pcmc', 'pcmc');
+			    dwr.util.setValue("enrollBatch", enrollBatch_value);
+			    }
+			});
+			
+		}
+		else
+		{
+			dwr.util.removeAllOptions("enrollBatch");
+			dwr.util.addOptions("enrollBatch", {"":"全部"});
+		}
+	}
+	
+	function changeExamTime2()
+	{
+		var examId2 = document.getElementById("examId2").value;
+		var enrollBatch_value2 = document.getElementById("enrollBatch_value2").value;
+		if (examId2 != "")
+		{
+         GetGaoZhaoPCDMByExamId.queryGaoZhaoJHPCByExamId(examId2, function(obj){
+                if (typeof window['DWRUtil'] == 'undefined') 
+                      window.DWRUtil = dwr.util;
+                if(dwr.util!=null){
+				dwr.util.removeAllOptions("enrollBatch2");
+				dwr.util.addOptions("enrollBatch2", {"":"全部"});
+				dwr.util.addOptions("enrollBatch2", obj, 'pcmc', 'pcmc');
+			    dwr.util.setValue("enrollBatch2", enrollBatch_value2);
+			    }
+			});
+			
+		}
+		else
+		{
+			dwr.util.removeAllOptions("enrollBatch2");
+			dwr.util.addOptions("enrollBatch2", {"":"全部"});
+		}
+	}
+	//分页实现方法
+  function searchGotoPage(pageNo){
+	if(!pageNo){
+		pageNo = $('#manuPageNo').val();
+	}
+
+	var $pageDivHide=document.getElementById("pageHideDiv");
+	var url = $pageDivHide.getAttribute('url');
+	var token = $pageDivHide.getAttribute('token');
+	var pageSize =$pageDivHide.getAttribute('pageSize');
+	
+	var html = '';
+	html += '<form id="searchGotoPageForm" action="'+url+'" method="post">';
+	html += '	<input type="hidden" name="pageFlag" value="true"/>';
+	html += '	<input type="hidden" name="token" value="'+token+'"/>';
+	html += '	<input type="hidden" name="pageSize" value="'+pageSize+'"/>';
+	html += '	<input type="hidden" name="pageNo" value="'+pageNo+'"/>';
+	html += '</form>';
+	//$('body').append(html);
+   var form1=document.createElement("form");
+   form1.id="searchGotoPageForm";
+   form1.action=url;
+   form1.method="POST";
+   var input1=document.createElement("input");
+   input1.type="hidden";
+   input1.name="pageFlag";
+   input1.value="true";
+   form1.appendChild(input1);
+   
+   var input2=document.createElement("input");
+   input2.type="hidden";
+   input2.name="token";
+   input2.value=token;
+   form1.appendChild(input2);
+   
+   
+   var input3=document.createElement("input");
+   input3.type="hidden";
+   input3.name="pageSize";
+   input3.value=pageSize;
+   form1.appendChild(input3);
+   
+   var input4=document.createElement("input");
+   input4.type="hidden";
+   input4.name="pageNo";
+   input4.value=pageNo;
+   form1.appendChild(input4);
+   document.body.appendChild(form1);
+  // document.getElementById("searchGotoPageForm").submit();
+	setTimeout(function(){
+		form1.submit();
+	},50);
+  }
+	
+	
+function kskmdmChange(obj){
+	
+	if($(obj).is(":checked")){
+		if('00' == $(obj).val()){
+			$("input[name=kskmdm]").each(function() {
+		          if ('00'!= $(this).val() &&  $(this).is(":checked")) {
+		        	  $(this).attr("checked", false);
+		          }
+		      });
+		}else{
+			$("input[name=kskmdm]").each(function() {
+		          if ('00'== $(this).val()) {
+		        	  $(this).attr("checked", false);
+		          }
+		      });
+		}
+	}
+	/*
+	
+	  var text="";
+      $("input[name=kskmdm]").each(function() {
+    	 // alert($(this).checked);
+    	  
+    	  //alert($(this).val());
+          if ($(this).attr("checked")) {
+              text += ","+$(this).val();
+          }
+      });
+      alert(text);
+	
+	
+	/*
+	alert(this.attr("checked"));
+	alert(this.val());
+	
+	
+	if($(this).attr("checked")){
+		
+		
+		var ksdm = $(this).val();
+		if('00' == ksdm){
+			$("input[name=kskmdm]").each(function(o) {
+				if('00' != o.val()){
+					o.attr("checked", false);
+				}
+            });
+		}
+	}
+	*/
+}
+</script>
+</head>
+<body id="bodys" onload="changeExamTime1();changeExamTime2();">
+<!-- banner -->
+
+<table width="974" cellspacing="0" cellpadding="0" border="0" align="center">
+	<tbody>
+		<tr>
+			<td>
+				<div class="banner"></div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<table width="974" height="471" cellspacing="0" cellpadding="0" border="0" align="center" class="Content">
+	<tbody>
+		<tr>
+			<td valign="top" height="470" bgcolor="#FFFFFF">
+			<!-- nav bar --> 
+
+
+
+<table width="974" cellspacing="0" cellpadding="0" border="0" align="center">
+	<tbody>
+		<tr>
+			<td height="24" bgcolor="#4079c0">
+				<table width="100%" cellspacing="0" cellpadding="0" border="0">
+					<tbody>
+						<tr>
+							<td width="35%" height="5%" class="time">
+								今天是2026年09月19日 星期六
+							</td>
+							<td width="60%" align="right" class="moth">
+								<a href="http://www.bjeea.cn">北京教育考试院首页 </a>
+								<a>|</a>
+								<a href="http://www.bjeea.cn">网上综合查询系统</a>
+								
+								<a>|</a>
+								<a href="#">高招计划查询</a>
+								
+							</td>
+							<td width="5%">
+								&nbsp;
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<table width="974" cellspacing="0" cellpadding="0" border="0">
+	<tbody>
+		<tr>
+			<td height="41" class="title_bg">
+				<table width="500" cellspacing="0" cellpadding="0" border="0" align="left">
+					<tbody>
+						<tr>
+							<td width="30" valign="bottom" height="26" align="center">
+								<div class="bot_bg"></div>
+							</td>
+							<td width="90" valign="bottom" align="left" class="title">
+								您当前的位置：
+							</td>
+							<td width="100" valign="bottom" align="left" class="title">
+								<a href="http://www.bjeea.cn">网上综合查询系统</a>
+							</td>
+							
+							 
+								<td valign="bottom" align="left" class="title">
+									&gt;&gt;高招计划查询&nbsp;
+								</td>
+							
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<div id="errormsg" class="hide">
+	<table border="0" class="td_error" id="tableError">
+		<tr>
+			<td class="td_txt">
+				
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="successmsg" class="hide">
+	<table border="0" class="td_succeed" id="tableMessage">
+		<tr>
+			<td class="td_txt">
+				
+			</td>
+		</tr>
+	</table>
+</div>
+<table width="950" cellspacing="0" cellpadding="0" border="0" align="center">
+	<tbody>
+		<tr>
+			<td width="992" height="1" bgcolor="#04579D"></td>
+		</tr>
+	</tbody>
+</table> <!-- query -->
+			<form id="queryForm" method="post" action="#">
+			<table width="100%" height="295" border="0" align="center" cellpadding="0" cellspacing="0">
+				<tr>
+					<td width="948" height="295" align="center" valign="top">
+					<div id="head_menu_nav">
+					<ul>
+						<li id="nav_menu1" onclick="setTab('nav_menu',1,2)" ><span>按学校查询</span></li>
+						<li id="nav_menu2" onclick="setTab('nav_menu',2,2)" class="nav_now"><span>按专业查询</span></li>
+					</ul>
+					</div>
+					<div id="head_menu_subnav" style="border: 1px solid #B0CAED; width: 917px;">
+					<ul class="menu_subnav">
+						<li id="nav_menu_con1" style="display: block">
+						<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+							<tr>
+								<td height="50" align="center" class="title_cr">2026年北京市普通高等学校招生计划查询</td>
+							</tr>
+							<tr>
+								<td height="1" align="center" bgcolor="#4A77BB"></td>
+							</tr>
+							<tr>
+								<td>
+								<table width="750" border="0" cellspacing="2" cellpadding="0" style="margin-top: 10px;">
+									<tr>
+										<td width="40" align="left" class="title" nowrap>年度：</td>
+										<td align="center" class="title">
+											<select name="examId" id="examId" onchange="changeExamTime1();"> 
+												
+													
+														<option value="6232" >2026年</option>
+													
+												
+											</select>
+										</td>
+										<td width="80" align="center" class="title" nowrap>&nbsp;录取批次：</td>
+										<td align="center" class="title">
+											<select name="enrollBatch" id="enrollBatch">
+												<!--<option value="">全部</option>
+												-->
+											</select>
+										</td>
+										<td width="75" align="center" class="title" nowrap>&nbsp;所在地区：</td>
+										<td align="center" class="title">
+											<select name="province" id="province">
+												<option value="">全部</option>
+												
+													
+														<option value="北京" >
+															北京
+														</option>
+													
+														<option value="天津" >
+															天津
+														</option>
+													
+														<option value="河北" >
+															河北
+														</option>
+													
+														<option value="山西" >
+															山西
+														</option>
+													
+														<option value="内蒙古" >
+															内蒙古
+														</option>
+													
+														<option value="辽宁" >
+															辽宁
+														</option>
+													
+														<option value="吉林" >
+															吉林
+														</option>
+													
+														<option value="黑龙江" >
+															黑龙江
+														</option>
+													
+														<option value="上海" >
+															上海
+														</option>
+													
+														<option value="江苏" >
+															江苏
+														</option>
+													
+														<option value="浙江" >
+															浙江
+														</option>
+													
+														<option value="安徽" >
+															安徽
+														</option>
+													
+														<option value="福建" >
+															福建
+														</option>
+													
+														<option value="江西" >
+															江西
+														</option>
+													
+														<option value="山东" >
+															山东
+														</option>
+													
+														<option value="河南" >
+															河南
+														</option>
+													
+														<option value="湖北" >
+															湖北
+														</option>
+													
+														<option value="湖南" >
+															湖南
+														</option>
+													
+														<option value="广东" >
+															广东
+														</option>
+													
+														<option value="广西" >
+															广西
+														</option>
+													
+														<option value="海南" >
+															海南
+														</option>
+													
+														<option value="重庆" >
+															重庆
+														</option>
+													
+														<option value="四川" >
+															四川
+														</option>
+													
+														<option value="贵州" >
+															贵州
+														</option>
+													
+														<option value="云南" >
+															云南
+														</option>
+													
+														<option value="西藏" >
+															西藏
+														</option>
+													
+														<option value="陕西" >
+															陕西
+														</option>
+													
+														<option value="甘肃" >
+															甘肃
+														</option>
+													
+														<option value="青海" >
+															青海
+														</option>
+													
+														<option value="宁夏" >
+															宁夏
+														</option>
+													
+														<option value="新疆" >
+															新疆
+														</option>
+													
+														<option value="香港" >
+															香港
+														</option>
+													
+												
+											</select>
+										</td>
+										<td width="75" align="left" class="title" nowrap>&nbsp;学校名称：</td>
+										<td width="120" align="center" class="title">
+											<input name="schoolName" id="schoolName" type="text" value="" size="20" />
+										</td>
+										<td align="center" class="title">
+											<input type="button" class="query_btn query_btn1" id="query_btn" value="查询" onclick="return goquery('1');" />
+										</td>
+									</tr>
+								</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+								<table width="738" border="0" align="center" cellpadding="0" cellspacing="0" class="case" style="margin-top: 10px;">
+									<tr>
+										<td width="10%" align="center" bgcolor="#E0EDFD" height="25" class="title_pr">序号</td>
+										<td width="10%" align="center" bgcolor="#E0EDFD" class="title_pr">学校代码</td>
+										<td width="30%" align="center" bgcolor="#E0EDFD" class="title_pr">学校名称</td>
+										<td width="10%" align="center" bgcolor="#E0EDFD" class="title_pr">所在地区</td>
+										<td width="18%" align="center" bgcolor="#E0EDFD" class="title_pr">录取批次</td>
+										<td width="12%" align="center" bgcolor="#E0EDFD" class="title_pr">计划招生数</td>
+									</tr>
+									
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">1</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">0321</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('0321','0321')">陆军工程大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">江苏</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													8
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">2</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">0431</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('0431','0431')">国防科技大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">湖南</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													10
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">3</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1003</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1003','1003')">中国人民公安大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													9
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">4</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1008</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1008','1008')">中央美术学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													23
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">5</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1009</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1009','1009')">中央戏剧学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													18
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">6</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1010</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1010','1010')">北京体育大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													65
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">7</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1011</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1011','1011')">中国社会科学院大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													25
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">8</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1012</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1012','1012')">首都体育学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													251
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">9</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1013</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1013','1013')">中国音乐学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													34
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">10</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1015</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1015','1015')">中国戏曲学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													26
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">11</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1016</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1016','1016')">北京电影学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													81
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">12</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1017</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1017','1017')">北京舞蹈学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													6
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">13</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1019</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1019','1019')">中国科学院大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													25
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">14</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1020</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1020','1020')">中央民族大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													175
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">15</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1021</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1021','1021')">北京大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													200
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">16</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1022</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1022','1022')">中国人民大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													150
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">17</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1023</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1023','1023')">清华大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													206
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">18</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1025</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1025','1025')">北京交通大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													185
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">19</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1026</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1026','1026')">北京科技大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													216
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">20</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1027</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1027','1027')">北京化工大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													174
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">21</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1028</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1028','1028')">北京邮电大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													340
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">22</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1029</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1029','1029')">中国农业大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													321
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">23</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1030</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1030','1030')">北京林业大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													255
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">24</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1031</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1031','1031')">北京中医药大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													348
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">25</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1032</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1032','1032')">北京师范大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													122
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">26</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1033</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1033','1033')">北京外国语大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													82
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">27</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1035</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1035','1035')">北京语言大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													135
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">28</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1036</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1036','1036')">中国传媒大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													160
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">29</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1037</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1037','1037')">中央财经大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													227
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">30</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1038</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1038','1038')">对外经济贸易大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													190
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">31</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1039</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1039','1039')">中国政法大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													153
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">32</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1040</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1040','1040')">华北电力大学(北京)</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													185
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">33</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1041</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1041','1041')">中国矿业大学(北京)</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													118
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">34</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1042</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1042','1042')">中国石油大学(北京)</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													157
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">35</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1043</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1043','1043')">中国地质大学(北京)</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													170
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">36</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1045</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1045','1045')">北京大学医学部</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													124
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">37</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1046</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1046','1046')">北京协和医学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													46
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">38</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1047</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1047','1047')">北京航空航天大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													275
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">39</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1048</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1048','1048')">北京理工大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													270
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">40</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1049</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1049','1049')">北京工业大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													2760
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">41</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1051</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1051','1051')">首都医科大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													869
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">42</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1052</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1052','1052')">首都师范大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													1925
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">43</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1053</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1053','1053')">北京第二外国语学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													1153
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">44</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1055</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1055','1055')">首都经济贸易大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													2624
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">45</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1060</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1060','1060')">中国劳动关系学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													119
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">46</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1061</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1061','1061')">中华女子学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													77
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">47</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1062</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1062','1062')">北方工业大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													2498
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">48</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1063</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1063','1063')">北京工商大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													2801
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">49</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1064</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1064','1064')">北京信息科技大学</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													1947
+												</td>
+											</tr>
+										
+											<tr bgcolor="">
+												<td align="center" class="title_p">50</td>
+												<!-- 学校代码 -->
+												<td align="center" class="title_p">1065</td>
+												<!-- 学校名称 -->
+												<td align="left" class="title_k">
+													<a href="#" onclick="return goschool('1065','1065')">北京服装学院</a>
+												</td>
+												<!-- 所在地区 -->
+												<td align="center" class="title_p">北京</td>
+												<!-- 录取批次 -->
+												<td align="center" class="title_p">本科普通批</td>
+												<!-- 计划招生数 -->
+												<td align="center" class="title_p">
+													386
+												</td>
+											</tr>
+										
+										<tr>
+												<td colspan="7">
+													<!-- 分页 -->
+													
+
+<div class="pagination">
+	<ul>
+		<li>
+			<a>第1页 / 共13页&nbsp;&nbsp;&nbsp;&nbsp;每页显示50条记录</a>
+		</li>
+	</ul>
+	<ul style="float:right">
+		
+   		
+		
+		<li class="disabled">
+			<span>首页</span>
+		</li>
+		<li class="disabled">
+			<span>上一页</span>
+		</li>
+		
+		
+		
+		
+		<li>
+			<a href="javascript:void(0)" onclick="searchGotoPage(2)">下一页</a>
+		</li>
+		<li>
+			<a href="javascript:void(0)" onclick="searchGotoPage(13)">尾页</a>
+		</li>
+		
+		
+		
+		<li>
+			跳转到<input type="text" size="3" id="manuPageNo" value="1">
+		</li>
+		<li>
+			<a href="javascript:void(0)" onclick="searchGotoPage()">&nbsp;GO&nbsp;</a>
+		</li>
+	</ul>
+	<div id="pageHideDiv" style="display:none" url="/queryService/rest/plan/115" token="1789823378566" pageSize="50" pageNo="1"></div>
+</div>
+
+
+												</td>
+										</tr>
+									
+								</table>
+								</td>
+							</tr>
+							<tr>
+								<td width="972">&nbsp;</td>
+							</tr>
+							<tr>
+								<td width="972">&nbsp;</td>
+							</tr>
+						</table>
+						</li>
+						<li id="nav_menu_con2" style="display: none">
+						<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+							<tr>
+								<td height="50" align="center" class="title_cr">2026年北京市普通高等学校招生计划查询</td>
+							</tr>
+							<tr>
+								<td height="1" align="center" bgcolor="#4A77BB"></td>
+							</tr>
+							<tr>
+								<td>
+								<table width="750" border="0" cellspacing="2" cellpadding="0" style="margin-top: 10px;">
+									<tr>
+										<td width="40" align="right" class="title" nowrap>年度：</td>
+										<td align="center" class="title">
+											<select name="examId2" id="examId2" onchange="changeExamTime2()">
+												
+													
+														<option value="6232" >2026年</option>
+													
+												
+											</select>
+										</td>
+										<td width="80" align="center" class="title" nowrap>&nbsp;录取批次：</td>
+										<td align="left" class="title">
+											<select name="enrollBatch2" id="enrollBatch2" >
+												<!--<option value="">全部</option>
+												
+											--></select>
+										</td>
+										<td width="80" align="center" class="title" nowrap>&nbsp;专业名称：</td>
+										<td align="center" class="title">
+											<input name="specialtyName" id="specialtyName" type="text" value="" size="15" />
+										</td>
+										<td width="60" align="center" class="title">
+											<input type="button" class="query_btn query_btn1" id="doSearchSpecialty" value="查询" onclick="return goquery('2');" />
+										</td>
+									</tr>
+									<tr>
+										<td align="right" class="title" nowrap>专业的选考科目要求：</td>
+										<td colspan="3" align="center" class="title" nowrap style="font-size:14px;">
+											
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="00" />不限选考科目&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="04" />物理&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="05" />化学&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="06" />生物&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="07" />政治&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="08" />历史&nbsp;
+												
+												<input onchange="kskmdmChange(this);" style="width:13px;vertical-align:text-top; margin-top:0;" 
+												 type="checkbox" name="kskmdm" value="09" />地理&nbsp;
+												
+											
+										</td>
+										<td align="right" class="title" nowrap>选考科目间关系：</td>
+										<td align="left" class="title" nowrap style="font-size:14px;">
+											<input style="width:13px;vertical-align:text-top; margin-top:0;"  type="radio" id="kskmgx" name="kskmgx" value="1" />且&nbsp;&nbsp;
+											<input style="width:13px;vertical-align:text-top; margin-top:0;"  checked="checked"  type="radio" id="kskmgx" name="kskmgx" value="0" />或
+										</td>
+										<td>
+										</td>
+									</tr>
+								</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+								<table width="880" border="0" align="center" cellpadding="0" cellspacing="0" class="case" style="margin-top: 10px;">
+									<tr>
+										<td width="56" align="center" bgcolor="#E0EDFD" height="33" class="title_pr">学校代码</td>
+										<td width="125" align="center" bgcolor="#E0EDFD" class="title_pr">学校名称</td>
+										<td width="41" align="center" bgcolor="#E0EDFD" class="title_pr">专业<br />
+										代码</td>
+										<td width="110" align="center" bgcolor="#E0EDFD" class="title_pr">专业名称</td>
+										<td width="119" align="center" bgcolor="#E0EDFD" class="title_pr">{专业组}<br />选考科目要求</td>
+										<td width="120" align="center" bgcolor="#E0EDFD" class="title_pr">录取批次</td>
+										<td width="60" align="center" bgcolor="#E0EDFD" class="title_pr">计划<br />
+										招生数</td>
+										<td width="58" align="center" bgcolor="#E0EDFD" class="title_pr">学制（年）</td>
+										<td width="76" align="center" bgcolor="#E0EDFD" class="title_pr">收费标准<br />
+										（元/年）</td>
+										<td width="68" align="center" bgcolor="#E0EDFD" class="title_pr">外语语种</td>
+									</tr>
+									
+								</table>
+								</td>
+							</tr>
+							<tr>
+								<td width="972">&nbsp;</td>
+							</tr>
+							<tr>
+								<td width="972">&nbsp;</td>
+							</tr>
+						</table>
+						</li>
+					</ul>
+					</div>
+					<p class="title_p">招生计划数为空的表示这些艺术类专业暂不做分省计划,在录取时再确定。<br />
+					本系统查询信息仅供参考，具体信息以市高招办下发的当年招生专业目录为准。</p>
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" name="optionType" value="1" /> <input type="hidden" name="queryType" id="queryType" value="" /></form>
+			
+<table width="969" border="0" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="972">
+			&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td height="61" align="center" bgcolor="#2896f2" class="moth">
+			<a>版权所有：北京教育考试院，未经同意，请勿转载! <br /> 通信地址：北京市海淀区志新东路9号 邮政编码：100083</a>
+		</td>
+	</tr>
+</table></td>
+		</tr>
+	</tbody>
+</table>
+<form id="aTagForm" method="post">
+	<input type="hidden" name="examId" id="hiddenExamId" /> 
+	<input type="hidden" name="schoolcode" id="schoolcode" />
+	<input type="hidden" name="subjectName" id="subjectName"/>
+</form>
+</body>
+</html>
+<script type="text/javascript">
+function setTab(name,num,n){
+	for(i=1;i<=n;i++){
+		var menu=document.getElementById(name+i);
+		var con=document.getElementById(name+"_"+"con"+i);
+		menu.className=i==num?"nav_now":"";
+		con.style.display=i==num?"block":"none"; 
+	}
+}
+setTab('nav_menu',1,2);
+function goschool(schoolcode,subject){
+	var queryForm = document.getElementById("aTagForm");
+	var url = "/queryService/rest/plan/115/" + schoolcode;
+	queryForm.action=url;
+	queryForm.target="_blank";
+	//给隐藏域设置下拉选择的年份
+	document.getElementById("hiddenExamId").value=document.getElementById("examId").value
+	document.getElementById("schoolcode").value=schoolcode;
+	document.getElementById("subjectName").value=subject;
+	queryForm.submit();
+}
+
+function goquery(queryType){
+	//$("#queryType").val(queryType);
+	//$("#queryForm").submit();
+	document.getElementById("queryType").value=queryType;
+	document.getElementById("queryForm").submit();
+}
+</script>
+

@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-09-19 21:39:24",
+  "data_version": "288df7eb6e1a",
+  "latest_year": 2026,
+  "years": [
+    2026,
+    2025,
+    2024
+  ],
+  "columns": [
+    "year",
+    "school_code",
+    "school_name",
+    "province",
+    "batch",
+    "group_code",
+    "group_label",
+    "subject_req",
+    "major_code",
+    "major_name",
+    "min_score",
+    "avg_score",
+    "max_score",
+    "rank_min",
+    "plan_count",
+    "difficulty",
+    "duration",
+    "tuition",
+    "source_url",
+    "score_source"
+  ],
+  "counts": {
+    "schools": 620,
+    "programs": 2818,
+    "admissions": 2818,
+    "with_scores": 19,
+    "with_rank": 14
+  },
+  "demo_years": [
+    2025,
+    2024
+  ],
+  "difficulty": {
+    "2026": {
+      "primary": null,
+      "all": []
+    },
+    "2025": {
+      "primary": {
+        "level": "偏难",
+        "subject": "全科",
+        "summary": "（示例）整体难度略升，高分段竞争加剧",
+        "evidence": "（示例）本科线 430 分，53994 人过线",
+        "source_title": "示例条目，请替换为真实来源",
+        "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+        "source_type": "demo",
+        "confidence": 0.0
+      },
+      "all": [
+        {
+          "level": "适中",
+          "subject": "数学",
+          "summary": "（示例）数学难度与上年持平",
+          "evidence": "（示例）平均分与去年基本相当",
+          "source_title": "示例条目，请替换为真实来源",
+          "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+          "source_type": "demo",
+          "confidence": 0.0
+        },
+        {
+          "level": "偏难",
+          "subject": "全科",
+          "summary": "（示例）整体难度略升，高分段竞争加剧",
+          "evidence": "（示例）本科线 430 分，53994 人过线",
+          "source_title": "示例条目，请替换为真实来源",
+          "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+          "source_type": "demo",
+          "confidence": 0.0
+        }
+      ]
+    },
+    "2024": {
+      "primary": {
+        "level": "偏易",
+        "subject": "全科",
+        "summary": "（示例）整体难度偏易，中段分数密集",
+        "evidence": "（示例）示范性说明，非真实数据",
+        "source_title": "示例条目，请替换为真实来源",
+        "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+        "source_type": "demo",
+        "confidence": 0.0
+      },
+      "all": [
+        {
+          "level": "偏易",
+          "subject": "全科",
+          "summary": "（示例）整体难度偏易，中段分数密集",
+          "evidence": "（示例）示范性说明，非真实数据",
+          "source_title": "示例条目，请替换为真实来源",
+          "source_url": "https://www.bjeea.cn/html/gkgz/tzgg/",
+          "source_type": "demo",
+          "confidence": 0.0
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "name": "北京教育考试院 · 综合查询系统（招生计划）",
+      "url": "http://query.bjeea.cn/queryService/rest/plan/115"
+    },
+    {
+      "name": "北京教育考试院 · 高考高招通知公告（一分一段表）",
+      "url": "https://www.bjeea.cn/html/gkgz/index.html"
+    },
+    {
+      "name": "阳光高考平台",
+      "url": "https://gaokao.chsi.com.cn/"
+    }
+  ],
+  "rank_note": "位次由当年一分一段表的累计人数换算得到；官方公布的尾部为合并区间（如 120-129），落在区间内的分数只能取该段累计人数，属官方口径下的近似值。"
+}
